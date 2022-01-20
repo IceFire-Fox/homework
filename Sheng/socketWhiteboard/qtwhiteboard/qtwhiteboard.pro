@@ -8,27 +8,27 @@ CONFIG += c++11
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-INCLUDEPATH += /usr/local/include/opencv4/
+INCLUDEPATH += ./include
 
-LIBS += -L/usr/local/lib `pkg-config opencv4 --cflags --libs` -lpthread
+LIBS += -I./include
 
 SOURCES += \
-    ../src/linkedlist.c \
+    drawspace.cpp \
     main.cpp \
-    mainwindow.cpp \
-    whiteboard.cpp
+    drawwindow.cpp \
+    src/bezier.cpp \
+    src/linkedlist.c
 
 HEADERS += \
-    ../include/linkedlist.h \
-    mainwindow.h \
-    whiteboard.h
+    drawspace.h \
+    drawwindow.h \
+    ./include/bezier.h \
+    ./include/linkedlist.h
 
 FORMS += \
-    mainwindow.ui
+    drawwindow.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
-
-DISTFILES +=

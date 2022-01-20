@@ -1,13 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 #include "linkedlist.h"
+#include <time.h>
 
 /*
  *  新增一筆資料在 Linkedlist 中
  */
-int add (Node_s **node, Data_s pt) {
+int add (Node_s **node, Pos pt) {
     Node_s *new_node, *cur;
 
     cur = *node;
@@ -25,12 +22,12 @@ int add (Node_s **node, Data_s pt) {
 /*
  *  在 Linkedlist 中刪除指定資料
  */
-int del (Node_s **node, Data_s pt) {
+int del (Node_s **node, Pos pt) {
     Node_s *cur, *tmp;
 
     cur = *node;
     while (cur->next != NULL) {
-        if (!memcmp(&(cur->next->point), &pt, sizeof(Data_s))) {
+        if (!memcmp(&(cur->next->point), &pt, sizeof(Pos))) {
             tmp = cur->next->next;
             free(cur->next); 
             cur->next = tmp;
@@ -75,10 +72,10 @@ int cleanList (Node_s **node) {
 
 int socket_write (Node_s **node, int fd, int size) {
     Node_s *cur;
-    Data_s *pts;
+    Pos *pts;
     int i;
 
-    pts = (Data_s *)malloc(sizeof(Data_s)*size);
+    pts = (Pos *)malloc(sizeof(Pos)*size);
     i = 0;
     cur = (*node)->next;
     while (cur != NULL) {
@@ -90,25 +87,31 @@ int socket_write (Node_s **node, int fd, int size) {
         cur = cur->next;
     }
     //write(fd, &i, sizeof(int));
-    write(fd, pts, size*sizeof(Data_s));
+    write(fd, pts, i*sizeof(Pos));
     free(pts);
     return 0;
 }
 
 int socket_read (Node_s **node, int fd, int size) {
-    Data_s *pts;
+    Pos *pts;
+    int n, time = 5;
 
-    pts = (Data_s *)malloc(sizeof(Data_s)*size);
-    if ((read(fd, pts, sizeof(Data_s)*size)) > 0) {
-        for (int i = 0; i < size; i++) {
+    pts = (Pos *)malloc(sizeof(Pos)*size);
+    while ((n = read(fd, pts, sizeof(Pos)*size)) <= 0 && time-- && !sleep(1));
+    if (n > 0) {
+        n /= sizeof(Pos);
+        for (int i = 0; i < n; i++) {
             if ((pts+i)->x == -1 && (pts+i)->y == 0) {
-                return size;
+                free(pts);
+                return n;
             }
             add(node, *(pts+i));
         }
     }
+    free(pts);
     return 0;
 }
+
 /*
 int IDdelete (Node_s **node, int id) {
     Node_s *cur, *next;
@@ -132,3 +135,4 @@ int IDdelete (Node_s **node, int id) {
     return 0;
 }
 */
+
